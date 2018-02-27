@@ -5,6 +5,8 @@ import os
 import aiofiles
 import discord
 
+from vocabulary import Vocabulary as vb
+
 
 class Bot(discord.Client):
     def __init__(self):
@@ -27,6 +29,10 @@ class Bot(discord.Client):
                 image_file = await compile_tex(content)
 
                 await self.send_file(message.channel, image_file)
+            elif content.startswith('>define'):
+                # TODO get dictionary data of word with vocabulary
+                # TODO create embed with details and send embed
+                print("yeah")
 
 
 async def compile_tex(snippet):
