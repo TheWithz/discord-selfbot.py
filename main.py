@@ -23,46 +23,48 @@ class Bot(discord.Client):
         if message.author == self.user:
             content = message.content  # type: str
 
+            # TODO add a translate command using vb.translate('word','en','fra')
             if content.startswith('>tex'):
                 content = content[4:].strip()
-
                 image_file = await compile_tex(content)
-
                 await self.send_file(message.channel, image_file)
-            # TODO add a translate command using vb.translate('word','en','fra')
-            elif content.startswith('>define'):
-                # TODO populate embed with correct data
-                # TODO create sub commands
-                # TODO hopefully fix duplicates
-                # and ignore everything after the first white space
-                args = content[7:].strip().split()
-                # if nothing was entered after the command, do nothing
-                if len(args) == 0:
-                    await self.delete_message(message)
-                    return
-                # get the first word typed after the command
-                word = args[0]
-                meanings = vb.meaning(word, format='list')
-                # if the word cannot be found to have any meaning then
-                # make an embed showing that. 
-                if not meanings:
-                    em = discord.Embed(title='Definition of ' + word, description='No definition could be found', colour=0xFF0000)
-                    await self.send_message(message.channel, embed=em)
-                    await self.delete_message(message)
-                    return
-                synonyms = vb.synonym(word, format='list')
-                antonyms = vb.antonym(word, format='list')
-                # part of speech. Not piece of shit :P
-                pos = vb.part_of_speech(word, format='list')
-                examples = vb.usage_example(word, format='list')
-                pronunciations = vb.pronunciation(word, format='list')
-                em = discord.Embed(title='Definition of ' + word, colour=0x00FF00)
-                for x in range(1, len(meanings) - 1):
-                    if x % 25 == 0:
-                        await self.send_message(message.channel, embed=em)
-                        em = discord.Embed(title='Definition of ' + word, colour=0x00FF00)
-                    em.add_field(name='Meaning ' + str(x), value=remove_html(meanings[x]), inline=False)
-                await self.send_message(message.channel, embed=em)
+            elif content.startswith('>antonyms'):
+                await handle_word(self, message, content[1:9])
+            elif content.startswith('>synonyms'):
+                await handle_word(self, message, content[1:9])
+
+
+# TODO hopefully fix duplicates
+async def handle_word(self, message, command):
+    args = message.content[len(command)+1:].strip().split()
+    # if nothing was entered after the command, do nothing
+    if len(args) == 0:
+        await self.delete_message(message)
+        return
+    # get the first word typed after the command
+    word = args[0]
+    response = get_list(command, word)
+    # if the word cannot be found make an embed showing that. 
+    if not response:
+        em = discord.Embed(title=command + ' of ' + word, description='None could be found', colour=0xFF0000)
+        await self.send_message(message.channel, embed=em)
+        await self.delete_message(message)
+        return
+    em = discord.Embed(title=command + ' of ' + word, colour=0x00FF00)
+    for x in range(0, len(response)):
+        if x % 25 == 0 and x != 0:
+            await self.send_message(message.channel, embed=em)
+            em = discord.Embed(title=command + ' of ' + word, colour=0x00FF00)
+        em.add_field(name=str(x + 1), value=remove_html(response[x]), inline=False)
+    await self.send_message(message.channel, embed=em)
+
+    
+def get_list(command, word):
+    if command == 'antonyms':
+        return vb.antonym(word, format='list')
+    elif command == 'synonyms':
+        return vb.synonym(word, format='list')
+    return False
 
 
 # remove html tags while preserving quotes.
