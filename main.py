@@ -5,8 +5,12 @@ import os
 import aiofiles
 import discord
 
-from vocabulary.vocabulary import Vocabulary as vb
+from oxforddict import OxfordDictionary as ox
 
+with open('config.json') as f:
+    config = json.load(f)
+
+dictionary = ox(app_keys=config['app_keys'], app_id=config['app_id'])
 
 class Bot(discord.Client):
     def __init__(self):
@@ -23,7 +27,6 @@ class Bot(discord.Client):
         if message.author == self.user:
             content = message.content  # type: str
 
-            # TODO add a translate command using vb.translate('word','en','fra')
             if content.startswith('>tex'):
                 content = content[4:].strip()
                 image_file = await compile_tex(content)
@@ -32,9 +35,10 @@ class Bot(discord.Client):
                 await handle_word(self, message, content[1:9])
             elif content.startswith('>synonyms'):
                 await handle_word(self, message, content[1:9])
+            elif content.startswith('>define'):
+                await handle_word(self, message, content[1:7])
 
 
-# TODO hopefully fix duplicates
 async def handle_word(self, message, command):
     args = message.content[len(command)+1:].strip().split()
     # if nothing was entered after the command, do nothing
@@ -43,7 +47,7 @@ async def handle_word(self, message, command):
         return
     # get the first word typed after the command
     word = args[0]
-    response = get_list(command, word)
+    response = get_dict(command, word)
     # if the word cannot be found make an embed showing that. 
     if not response:
         em = discord.Embed(title=command + ' of ' + word, description='None could be found', colour=0xFF0000)
@@ -59,11 +63,14 @@ async def handle_word(self, message, command):
     await self.send_message(message.channel, embed=em)
 
     
-def get_list(command, word):
+def get_dict(command, word):
     if command == 'antonyms':
-        return vb.antonym(word, format='list')
+        return vb.antonym
+
     elif command == 'synonyms':
         return vb.synonym(word, format='list')
+    elif command == 'define':
+        return vb.blah()
     return False
 
 
@@ -114,8 +121,6 @@ async def compile_tex(snippet):
 
 
 def main():
-    with open('config.json') as f:
-        config = json.load(f)
 
     os.makedirs('tmp', exist_ok=True)
 
