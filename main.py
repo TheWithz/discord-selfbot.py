@@ -65,12 +65,11 @@ async def handle_word(self, message, command):
     
 def get_dict(command, word):
     if command == 'antonyms':
-        return vb.antonym
-
+        return dictionary.thesaurus(word, antonyms=True)
     elif command == 'synonyms':
-        return vb.synonym(word, format='list')
+        return dictionary.thesaurus(word, synonyms=True)
     elif command == 'define':
-        return vb.blah()
+        return dictionary.entries('cat')['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['subsenses']
     return False
 
 
