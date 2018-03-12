@@ -46,6 +46,7 @@ async def make_str(self, message, newline):
     content = message.content[7:].strip()
     if len(content) == 0:
         await self.delete_message(message)
+        return;
     msg = ''
     for letter in content:
         if letter == ' ' and newline:
