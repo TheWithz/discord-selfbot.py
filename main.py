@@ -10,7 +10,7 @@ from oxforddict import OxfordDictionary as ox
 with open('config.json') as f:
     config = json.load(f)
 
-dictionary = ox(app_keys=config['app_keys'], app_id=config['app_id'])
+#dictionary = ox(app_keys=config['app_keys'], app_id=config['app_id'])
 
 class Bot(discord.Client):
     def __init__(self):
@@ -24,6 +24,15 @@ class Bot(discord.Client):
         print('------')
 
     async def on_message(self, message):
+
+        if message.server.name == "WORD RAPE MILLENNIUM":
+            if message.content.startswith('I\'m') or message.content.startswith('i\'m'):
+                content = message.content[3:].strip()
+                await self.send_message(message.channel, "Hi %s I'm %s" % (content, self.user.display_name))
+            elif message.content.startswith('Im') or message.content.startswith('im'):
+                content = message.content[2:].strip()
+                await self.send_message(message.channel, "Hi %s I'm %s" % (content, self.user.display_name))
+
         if message.author == self.user:
             content = message.content  # type: str
 
