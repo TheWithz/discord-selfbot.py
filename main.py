@@ -35,8 +35,8 @@ class Bot(discord.Client):
                 await handle_word(self, message, content[1:9])
             elif content.startswith('>synonyms'):
                 await handle_word(self, message, content[1:9])
-            elif content.startswith('>define'):
-                await handle_word(self, message, content[1:7])
+            elif content.startswith('>definition'):
+                await handle_word(self, message, content[1:11])
 
 
 async def handle_word(self, message, command):
@@ -68,8 +68,8 @@ def get_dict(command, word):
         return dictionary.thesaurus(word, antonyms=True)
     elif command == 'synonyms':
         return dictionary.thesaurus(word, synonyms=True)
-    elif command == 'define':
-        return dictionary.entries('cat')['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['subsenses']
+    elif command == 'definition':
+        return dictionary.entries(word)['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['subsenses']
     return False
 
 
